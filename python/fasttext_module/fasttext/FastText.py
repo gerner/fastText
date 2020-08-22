@@ -493,7 +493,7 @@ def read_args(arg_list, arg_dict, arg_names, default_values):
     return (ret, manually_set_args)
 
 
-def train_supervised(*kargs, **kwargs):
+def train_supervised(*kargs, callback=None, **kwargs):
     """
     Train a supervised model and return a model object.
 
@@ -525,12 +525,12 @@ def train_supervised(*kargs, **kwargs):
                                         supervised_default)
     a = _build_args(args, manually_set_args)
     ft = _FastText(args=a)
-    fasttext.train(ft.f, a)
+    fasttext.train(ft.f, a, callback)
     ft.set_args(ft.f.getArgs())
     return ft
 
 
-def train_unsupervised(*kargs, **kwargs):
+def train_unsupervised(*kargs, callback=None, **kwargs):
     """
     Train an unsupervised model and return a model object.
 
@@ -551,7 +551,7 @@ def train_unsupervised(*kargs, **kwargs):
                                         unsupervised_default)
     a = _build_args(args, manually_set_args)
     ft = _FastText(args=a)
-    fasttext.train(ft.f, a)
+    fasttext.train(ft.f, a, callback)
     ft.set_args(ft.f.getArgs())
     return ft
 

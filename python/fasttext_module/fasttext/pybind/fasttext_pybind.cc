@@ -13,6 +13,7 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/functional.h>
 #include <real.h>
 #include <vector.h>
 #include <cmath>
@@ -156,13 +157,20 @@ PYBIND11_MODULE(fasttext_pybind, m) {
 
   m.def(
       "train",
-      [](fasttext::FastText& ft, fasttext::Args& a) {
+      [](fasttext::FastText& ft, fasttext::Args& a, fasttext::FastText::TrainCallback& cb) {
         if (a.hasAutotune()) {
           fasttext::Autotune autotune(std::shared_ptr<fasttext::FastText>(
               &ft, [](fasttext::FastText*) {}));
           autotune.train(a);
         } else {
-          ft.train(a);
+          if(cb) {
+            ft.train(a, [cb](float p, float loss, double wst, double lr, int64_t eta) {
+                py::gil_scoped_acquire acquire;
+                cb(p, loss, wst, lr, eta);
+                });
+          } else {
+            ft.train(a);
+          }
         }
       },
       py::call_guard<py::gil_scoped_release>());
